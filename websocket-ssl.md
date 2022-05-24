@@ -52,3 +52,39 @@ Successfully installed certifi-2018.11.29
 [Process completed]
 ```
 
+
+**Issue:**
+
+Getting `ssl.SSLError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997)` error while trying to connect to web socket URL using (websocket.create_connection(url)) for the private url (not hosted with any certificates) 
+
+**Python Version:** 3.10
+
+**OS:** Ubuntu (Docker) 
+
+**Stack Trace while getting issue:** 
+
+```
+  File "/usr/local/lib/python3.10/dist-packages/websocket/_core.py", line 601, in create_connection
+    websock.connect(url, **options)
+  File "/usr/local/lib/python3.10/dist-packages/websocket/_core.py", line 244, in connect
+    self.sock, addrs = connect(url, self.sock_opt, proxy_info(**options),
+  File "/usr/local/lib/python3.10/dist-packages/websocket/_http.py", line 136, in connect
+    sock = _ssl_socket(sock, options.sslopt, hostname)
+  File "/usr/local/lib/python3.10/dist-packages/websocket/_http.py", line 272, in _ssl_socket
+    sock = _wrap_sni_socket(sock, sslopt, hostname, check_hostname)
+  File "/usr/local/lib/python3.10/dist-packages/websocket/_http.py", line 248, in _wrap_sni_socket
+    return context.wrap_socket(
+  File "/usr/lib/python3.10/ssl.py", line 512, in wrap_socket
+    return self.sslsocket_class._create(
+  File "/usr/lib/python3.10/ssl.py", line 1070, in _create
+    self.do_handshake()
+  File "/usr/lib/python3.10/ssl.py", line 1341, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLError: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:997)
+```
+
+**Solution:** 
+In this case, if we don't have the certficate for the URL for which we are trying to make connection using websocket, then check the URL and change it to connect via http only instead of https. 
+
+For example: In my case, previously, the URL which we tried to connect is, `wss://abcd:8181/`. So changing this to `ws://abcd:8181/`, solved the problem. This will enable the non-secured connection. 
+
